@@ -95,11 +95,10 @@ def run_fitting(name, y, model, data_pq, scale="log"):
     C = ruptura.Components()
     C.addComponent(name, float(y), isotherms=[[model] + [1.0] * len(ISOTHERM_MODELS[model])])
     fit = ruptura.Fitting(C, PressureScale=scale, DisplayName=name)
-    data = np.asarray(data_pq, dtype=float)
-    try:
-        params = fit.compute(data)
-    except TypeError:
-        params = fit.compute()
+    d = np.asarray(data_pq, dtype=float)
+    # RUPTURA wants one list of (pressure, loading) tuples per component
+    data = [[(float(p), float(q)) for p, q in d]]
+    params = fit.compute(data)
     return {"params": np.array(params).tolist()}
 
 
