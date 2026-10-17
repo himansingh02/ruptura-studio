@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+# Produces a double-click RUPTURA-Studio.exe on GitHub's Windows runners.
+# No Windows machine or Python needed on your side: push this repo, let the
+# job run, then download the .exe from the run's "Artifacts" section.
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruptura matplotlib numpy pyinstaller
+
+      - name: Build executable
+        run: pyinstaller --clean --noconfirm ruptura_studio.spec
+
+      - name: Upload the .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: RUPTURA-Studio-Windows
+          path: dist/RUPTURA-Studio.exe
+          if-no-files-found: error
